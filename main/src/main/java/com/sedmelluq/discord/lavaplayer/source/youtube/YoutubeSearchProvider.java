@@ -88,6 +88,8 @@ public class YoutubeSearchProvider implements YoutubeSearchResultLoader {
   private List<AudioTrack> extractSearchPage(JsonBrowser jsonBrowser, Function<AudioTrackInfo, AudioTrack> trackFactory) throws IOException {
     ArrayList<AudioTrack> list = new ArrayList<>();
     jsonBrowser.get("contents")
+        .get("twoColumnSearchResultsRenderer")
+        .get("primaryContents")
         .get("sectionListRenderer")
         .get("contents")
         .index(0)
@@ -102,7 +104,7 @@ public class YoutubeSearchProvider implements YoutubeSearchResultLoader {
   }
 
   private AudioTrack extractPolymerData(JsonBrowser json, Function<AudioTrackInfo, AudioTrack> trackFactory) {
-    json = json.get("compactVideoRenderer");
+    json = json.get("videoRenderer");
     if (json.isNull()) return null; // Ignore everything which is not a track
     AudioTrackInfo info = null;
     String title = json.get("title").get("runs").index(0).get("text").text();
@@ -113,7 +115,7 @@ public class YoutubeSearchProvider implements YoutubeSearchResultLoader {
       info = new AudioTrackInfo(title, author, DURATION_MS_UNKNOWN, videoId, true,
       WATCH_URL_PREFIX + videoId, artwork);
     } else {
-    long duration = DataFormatTools.durationTextToMillis(json.get("lengthText").get("runs").index(0).get("text").text());
+    long duration = DataFormatTools.durationTextToMillis(json.get("lengthText").get("simpleText").text());
     
     info = new AudioTrackInfo(title, author, duration, videoId, false,
         WATCH_URL_PREFIX + videoId, artwork);
